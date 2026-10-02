@@ -1,0 +1,52 @@
+name: Sync WordPress releases
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+    # Keepalive: GitHub disables schedules in public repos after 60 days without activity.
+    - cron: '0 3 1 * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Build only this version (e.g. 6.9.9). Leave empty to build every missing version.'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure git
+        run: |
+          git config user.name 'Klyp WordPress Bot'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Build and publish missing releases
+        env:
+          VERSION: ${{ inputs.version }}
+        run: bin/sync-releases.sh $VERSION
+
+  keepalive:
+    if: github.event.schedule == '0 3 1 * *'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Commit timestamp
+        run: |
+          git config user.name 'Klyp WordPress Bot'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          date -u +%Y-%m-%dT%H:%M:%SZ > .github/last-sync
+          git add .github/last-sync
+          git commit -m 'chore: keepalive [skip ci]'
+          git push
