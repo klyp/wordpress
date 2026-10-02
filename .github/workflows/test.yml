@@ -1,0 +1,54 @@
+name: Test install from Packagist
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    - cron: '30 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Newest release overall, plus the newest release of the previous branch.
+        which: [latest, previous-branch]
+    steps:
+      - name: Pick version
+        id: pick
+        run: |
+          versions=$(curl -fsS https://repo.packagist.org/p2/klyp/wordpress.json | jq -r '.packages["klyp/wordpress"][].version' || true)
+          if [ -z "$versions" ]; then
+            echo "::notice::klyp/wordpress is not on Packagist yet, skipping"
+            exit 0
+          fi
+          latest=$(echo "$versions" | sort -V | tail -1)
+          if [ '${{ matrix.which }}' = latest ]; then
+            version=$latest
+          else
+            branch=$(echo "$latest" | cut -d. -f1,2)
+            version=$(echo "$versions" | grep -v "^${branch}\(\.\|$\)" | sort -V | tail -1)
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Install
+        if: steps.pick.outputs.version
+        env:
+          VERSION: ${{ steps.pick.outputs.version }}
+        run: |
+          mkdir project && cd project
+          jq -n --arg v "$VERSION" '{
+            name: "klyp/wordpress-test",
+            require: { "klyp/wordpress": $v },
+            config: { "allow-plugins": { "klyp/wordpress-core-installer": true } },
+            extra: { "wordpress-install-dir": "wp" }
+          }' > composer.json
+          composer install --no-interaction --no-progress
+          grep -F "\$wp_version = '$VERSION';" wp/wp-includes/version.php
+          test -f wp/wp-load.php
+          test -d wp/wp-content/themes
