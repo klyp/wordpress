@@ -42,7 +42,7 @@ Apply the same change to project skeletons such as `3equals/hummingbird-project`
 
 ## How it works
 
-- `master` contains only the tooling in this README, `bin/` and `.github/`. It has no `composer.json`, so Packagist ignores it.
+- `master` contains only the tooling in this README, `bin/` and `.github/`. Its `composer.json` is a file-less `metapackage` that only gives Packagist the package name. Packagist lists it as `dev-master`, but it installs nothing, and normal constraints such as `^7.1` never select it.
 - Each WordPress version is a **tag** (`7.1.2`, `6.9.9`, `4.7.31`, ...). Each tag points to an orphan commit that holds:
   - the unmodified contents of the official `https://wordpress.org/wordpress-X.Y.Z.zip`, checked against its published `.sha1`
   - a generated `composer.json`. Its `php` requirement comes from that release's `$required_php_version`.
