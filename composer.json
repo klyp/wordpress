@@ -1,0 +1,12 @@
+{
+    "name": "klyp/wordpress",
+    "description": "WordPress core for Composer, built and published by Klyp. Require a tagged version (e.g. ^7.1); the master branch only holds the build tooling.",
+    "type": "metapackage",
+    "keywords": ["wordpress", "cms", "blog"],
+    "homepage": "https://github.com/klyp/wordpress",
+    "license": "GPL-2.0-or-later",
+    "support": {
+        "issues": "https://github.com/klyp/wordpress/issues",
+        "source": "https://github.com/klyp/wordpress"
+    }
+}
