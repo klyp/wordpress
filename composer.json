@@ -1,0 +1,30 @@
+{
+  "name": "klyp/wordpress",
+  "description": "WordPress core, repackaged by Klyp for Composer. Built from the official wordpress.org release zip.",
+  "type": "wordpress-core",
+  "keywords": [
+    "wordpress",
+    "cms",
+    "blog"
+  ],
+  "homepage": "https://wordpress.org/",
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "WordPress Community",
+      "homepage": "https://wordpress.org/about/"
+    }
+  ],
+  "support": {
+    "issues": "https://core.trac.wordpress.org/",
+    "source": "https://core.trac.wordpress.org/browser",
+    "docs": "https://developer.wordpress.org/"
+  },
+  "require": {
+    "php": ">=7.2.24",
+    "klyp/wordpress-core-installer": "^1.0"
+  },
+  "provide": {
+    "wordpress/core-implementation": "6.7.1"
+  }
+}
